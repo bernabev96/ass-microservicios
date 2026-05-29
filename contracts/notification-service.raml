@@ -1,0 +1,100 @@
+#%RAML 1.0
+
+title: Notification Service API
+version: v1
+baseUri: http://localhost:8000/api
+mediaType: application/json
+
+securitySchemes:
+
+  jwt:
+    type: x-custom
+    describedBy:
+      headers:
+        Authorization:
+          description: JWT Bearer Token
+          type: string
+          required: true
+
+types:
+
+  ErrorResponse:
+    type: object
+    properties:
+      error: string
+
+  Notification:
+    type: object
+    properties:
+      id?: integer
+      userId?: integer
+      orderId: integer
+      type: string
+      message: string
+      status?: string
+
+/health:
+  get:
+    description: Health check del servicio
+
+    responses:
+      200:
+        body:
+          example:
+            service: notification-service
+            status: UP
+
+/notifications:
+  post:
+    description: Endpoint interno para generar notificaciones
+
+    body:
+      type: Notification
+      example:
+        userId: 2
+        orderId: 1
+        type: ORDER_CONFIRMED
+        message: Pedido confirmado correctamente
+
+    responses:
+      201:
+        body:
+          type: Notification
+
+      400:
+        body:
+          type: ErrorResponse
+
+/notifications/me:
+  securedBy: [ jwt ]
+
+  get:
+    description: Obtiene las notificaciones del usuario autenticado
+
+    responses:
+      200:
+        body:
+          type: Notification[]
+
+      401:
+        body:
+          type: ErrorResponse
+
+/notifications/order/{orderId}:
+  securedBy: [ jwt ]
+
+  uriParameters:
+    orderId:
+      type: integer
+
+  get:
+    description: Obtiene las notificaciones asociadas a un pedido
+
+    responses:
+      200:
+        body:
+          type: Notification[]
+
+      401:
+        body:
+          type: ErrorResponse

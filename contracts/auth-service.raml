@@ -1,0 +1,87 @@
+#%RAML 1.0
+
+title: Auth Service API
+version: v1
+baseUri: http://localhost:7000/api
+mediaType: application/json
+
+types:
+
+  ErrorResponse:
+    type: object
+    properties:
+      error: string
+
+  RegisterRequest:
+    type: object
+    properties:
+      name: string
+      email: string
+      password: string
+
+  User:
+    type: object
+    properties:
+      id: integer
+      name: string
+      email: string
+      role: string
+
+  LoginRequest:
+    type: object
+    properties:
+      email: string
+      password: string
+
+  LoginResponse:
+    type: object
+    properties:
+      token: string
+      user: User
+
+/health:
+  get:
+    description: Health check del servicio
+    responses:
+      200:
+        body:
+          example:
+            service: auth-service
+            status: UP
+
+/auth/register:
+  post:
+    description: Registro de usuario
+    body:
+      type: RegisterRequest
+      example:
+        name: Cliente 2
+        email: cliente2@correo.com
+        password: "123456"
+
+    responses:
+      201:
+        body:
+          type: User
+
+      400:
+        body:
+          type: ErrorResponse
+
+/auth/login:
+  post:
+    description: Inicio de sesión
+    body:
+      type: LoginRequest
+      example:
+        email: cliente2@correo.com
+        password: "123456"
+
+    responses:
+      200:
+        body:
+          type: LoginResponse
+
+      401:
+        body:
+          type: ErrorResponse

@@ -1,0 +1,69 @@
+#%RAML 1.0
+
+title: Payment Service API
+version: v1
+baseUri: http://localhost:6000/api
+mediaType: application/json
+
+types:
+
+  ErrorResponse:
+    type: object
+    properties:
+      error: string
+
+  PaymentRequest:
+    type: object
+    properties:
+      userId: integer
+      orderId: integer
+      amount: number
+      method: string
+      cardNumber: string
+      cvv: string
+      expiryMonth: integer
+      expiryYear: integer
+
+  PaymentResponse:
+    type: object
+    properties:
+      paymentId: integer
+      status: string
+      transactionId: string
+      remainingBalance: number
+
+/health:
+  get:
+    description: Health check del servicio
+
+    responses:
+      200:
+        body:
+          example:
+            service: payment-service
+            status: UP
+
+/payments:
+  post:
+    description: Procesa un pago mediante tarjeta
+
+    body:
+      type: PaymentRequest
+      example:
+        userId: 2
+        orderId: 1
+        amount: 500
+        method: credit_card
+        cardNumber: "1111222233334444"
+        cvv: "123"
+        expiryMonth: 12
+        expiryYear: 2028
+
+    responses:
+      201:
+        body:
+          type: PaymentResponse
+
+      400:
+        body:
+          type: ErrorResponse

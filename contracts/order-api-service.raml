@@ -1,0 +1,120 @@
+#%RAML 1.0
+
+title: Order API Service
+version: v1
+baseUri: http://localhost:4000/api
+mediaType: application/json
+
+securitySchemes:
+
+  jwt:
+    type: x-custom
+    describedBy:
+      headers:
+        Authorization:
+          description: JWT Bearer Token
+          type: string
+          required: true
+
+types:
+
+  ErrorResponse:
+    type: object
+    properties:
+      error: string
+
+  PaymentData:
+    type: object
+    properties:
+      cardNumber: string
+      cvv: string
+      expiryMonth: integer
+      expiryYear: integer
+
+  CreateOrderRequest:
+    type: object
+    properties:
+      product: string
+      quantity: integer
+      paymentData: PaymentData
+
+  CreateOrderResponse:
+    type: object
+    properties:
+      orderId: integer
+      product: string
+      quantity: integer
+      totalPrice: number
+      status: string
+      paymentStatus: string
+      supplier?: string
+      supplierPrice?: number
+      estimatedDeliveryDate: string
+      message: string
+
+  Order:
+    type: object
+    properties:
+      id: integer
+      user_id: integer
+      product_name: string
+      quantity: integer
+      total_price: number
+      status: string
+      payment_status?: string
+      supplier?: string
+      supplier_price?: number
+      created_at: datetime
+
+/health:
+  get:
+    description: Health check del servicio
+
+    responses:
+      200:
+        body:
+          example:
+            service: order-api-service
+            status: UP
+
+/orders:
+  securedBy: [ jwt ]
+
+  get:
+    description: Obtiene los pedidos del usuario autenticado
+
+    responses:
+      200:
+        body:
+          type: Order[]
+
+      401:
+        body:
+          type: ErrorResponse
+
+  post:
+    description: Crea un pedido
+
+    body:
+      type: CreateOrderRequest
+      example:
+        product: televisor
+        quantity: 1
+        paymentData:
+          cardNumber: "1111222233334444"
+          cvv: "123"
+          expiryMonth: 12
+          expiryYear: 2028
+
+    responses:
+      201:
+        body:
+          type: CreateOrderResponse
+
+      400:
+        body:
+          type: ErrorResponse
+
+      401:
+        body:
+          type: ErrorResponse

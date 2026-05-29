@@ -1,0 +1,73 @@
+services:
+  soap-services:
+    build: ./soap-services
+    container_name: soap-services
+    ports:
+      - "8080:8080"
+
+  order-orchestrator-service:
+    build: ./services/order-orchestrator-service
+    container_name: order-orchestrator-service
+    ports:
+      - "3000:3000"
+    depends_on:
+      - soap-services
+      - payment-service
+      - notification-service
+
+  order-api-service:
+    build: ./services/order-api-service
+    container_name: order-api-service
+    ports:
+      - "4000:4000"
+    depends_on:
+      - mysql-db
+      - catalog-service
+      - order-orchestrator-service
+
+  mysql-db:
+    image: mysql:8.4
+    container_name: mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ecommerce
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init:/docker-entrypoint-initdb.d
+
+  catalog-service:
+    build: ./services/catalog-service
+    container_name: catalog-service
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mysql-db
+
+  payment-service:
+    build: ./services/payment-service
+    container_name: payment-service
+    ports:
+      - "6000:6000"
+    depends_on:
+      - mysql-db
+
+  auth-service:
+    build: ./services/auth-service
+    container_name: auth-service
+    ports:
+      - "7000:7000"
+    depends_on:
+      - mysql-db
+
+  notification-service:
+    build: ./services/notification-service
+    container_name: notification-service
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql-db
+
+volumes:
+  mysql_data:

@@ -1,0 +1,74 @@
+#%RAML 1.0
+
+title: Catalog Service API
+version: v1
+baseUri: http://localhost:5000/api
+mediaType: application/json
+
+types:
+
+  ErrorResponse:
+    type: object
+    properties:
+      error: string
+
+  Product:
+    type: object
+    properties:
+      id: integer
+      name: string
+      price: number
+
+/health:
+  get:
+    description: Health check del servicio
+
+    responses:
+      200:
+        body:
+          example:
+            service: catalog-service
+            status: UP
+
+/products:
+  get:
+    description: Obtiene todos los productos
+
+    responses:
+      200:
+        body:
+          type: Product[]
+
+/products/{id}:
+  uriParameters:
+    id:
+      type: integer
+
+  get:
+    description: Obtiene un producto por identificador
+
+    responses:
+      200:
+        body:
+          type: Product
+
+      404:
+        body:
+          type: ErrorResponse
+
+/products/name/{name}:
+  uriParameters:
+    name:
+      type: string
+
+  get:
+    description: Obtiene un producto por nombre
+
+    responses:
+      200:
+        body:
+          type: Product
+
+      404:
+        body:
+          type: ErrorResponse
