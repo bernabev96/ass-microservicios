@@ -65,7 +65,8 @@ docker compose up --build
 Servicios disponibles:
 
 | Servicio      | Puerto |
-| ------------- | ------ |
+|---------------|--------|
+| Orchestrator  | 3000   |
 | Order API     | 4000   |
 | Catalog       | 5000   |
 | Payment       | 6000   |
