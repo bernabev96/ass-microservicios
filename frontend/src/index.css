@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+:root {
+  --bg-base: #ffffff;
+}
+
+
+* {
+  box-sizing: border-box;
+  font-family: Verdana, Geneva, Tahoma, sans-serif
+}

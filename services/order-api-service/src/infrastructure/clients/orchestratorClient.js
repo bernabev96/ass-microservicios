@@ -7,8 +7,16 @@ const orchestratorClient = axios.create({
 });
 
 async function processOrder(data) {
-  const response = await orchestratorClient.post("/", data);
-  return response.data;
+  try {
+    const response = await orchestratorClient.post("/", data);
+    return response.data;
+  } catch (error) {
+    if (error.response?.data?.error) {
+      throw new Error(error.response.data.error);
+    }
+
+    throw error;
+  }
 }
 
 module.exports = {
