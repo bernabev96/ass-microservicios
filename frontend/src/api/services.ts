@@ -1,5 +1,8 @@
 import { ApiClient } from "./client";
 import { apiConfig } from "./config";
+import type { OrderResponse, ProductResponse } from "./dtos";
+import { clearAuthSession, getAuthHeaders, saveAuthSession } from "./authSession";
+import { mapOrder, mapProduct } from "./mappers";
 import type {
     Producto,
     Order,
@@ -8,69 +11,12 @@ import type {
     RegistroRequest,
     LoginRequest,
     LoginResponse
-} from '../types/types'
+} from "../types/types";
 
 const authClient = new ApiClient(apiConfig.services.auth);
 const catalogClient = new ApiClient(apiConfig.services.catalog);
 const orderClient = new ApiClient(apiConfig.services.order);
 const notificationClient = new ApiClient(apiConfig.services.notification);
-
-function getAuthHeaders() {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-        throw new Error("Debes iniciar sesión para realizar esta acción");
-    }
-
-    return {
-        Authorization: `Bearer ${token}`
-    };
-}
-
-type ProductResponse = Producto & {
-    price: number | string;
-};
-
-type OrderResponse = {
-    id?: number;
-    orderId?: number;
-    product_name?: string;
-    product?: string;
-    quantity: number;
-    total_price?: number | string;
-    totalPrice?: number | string;
-    status: string;
-    payment_status?: string | null;
-    paymentStatus?: string | null;
-    supplier?: string | null;
-    supplier_price?: number | string | null;
-    supplierPrice?: number | string | null;
-    estimated_delivery_date?: string | null;
-    estimatedDeliveryDate?: string | null;
-    message?: string;
-};
-
-function mapProduct(product: ProductResponse): Producto {
-    return {
-        ...product,
-        price: Number(product.price)
-    };
-}
-
-function mapOrder(order: OrderResponse): Order {
-    return {
-        orderId: order.orderId ?? order.id ?? 0,
-        product: order.product ?? order.product_name ?? "",
-        quantity: order.quantity,
-        totalPrice: Number(order.totalPrice ?? order.total_price ?? 0),
-        status: order.status,
-        paymentStatus: order.paymentStatus ?? order.payment_status ?? "",
-        supplier: order.supplier ?? "",
-        supplierPrice: Number(order.supplierPrice ?? order.supplier_price ?? 0),
-        estimatedDeliveryDate: order.estimatedDeliveryDate ?? order.estimated_delivery_date ?? "",
-        message: order.message ?? ""
-    };
-}
 
 /* LOGIN */
 export class AuthService {
@@ -80,23 +26,14 @@ export class AuthService {
         const endpoint = apiConfig.endpoint.auth.login;
         const response = await authClient.post<LoginResponse>(endpoint, data);
 
-        localStorage.setItem(
-            "token",
-            response.token
-        );
-
-        localStorage.setItem(
-            "user",
-            JSON.stringify(response.user)
-        );
+        saveAuthSession(response);
 
         return response;
     }
 
     static logout() {
 
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
+        clearAuthSession();
     }
 
 }
